@@ -3,29 +3,24 @@ defmodule Labex do
   Documentation for `Labex`.
   """
 
-  @doc """
-  Hello world.
+  defmacro __using__(opts) do
+    opts = Keyword.merge(opts, Application.get_env(:labex, __CALLER__.module, []))
 
-  ## Examples
+    mode = Keyword.get(opts, :mode) || raise Labex.InvalidModeError
+    init_method = :file
 
-      iex> Labex.hello()
-      :world
+    quote location: :keep do
+      @behaviour :gen_event
 
-  """
-  def hello do
-    :world
+      defdelegate init(opts), to: Labex, as: unquote(init_method)
+      defdelegate handle_event(), to: Labex
+
+
+    end
   end
 
-  @behaviour :gen_event
+  defdelegate file(opts), to: Labex.Backends.File, as: :init
 
-  def init(_args) do
 
-    {:ok, []}
-  end
 
-  def handle_event(event, state) do
-    IO.inspect(event, label: "LABEX")
-    IO.inspect(state, label: "STATE")
-    {:ok, state}
-  end
 end
