@@ -12,10 +12,10 @@ config :logger,
 
 
 config :labex, My.Logger,
-  # mode: :file,
+  mode: Labex.FileBackend,
   conf: [
     roller: {:time, {5, :minute}},
-    path: URI.new!("./logs"),
+    path: Path.expand("./logs/"),
     naming_strategy: :timestamp,
     structured_logs: My.StructuredLogs
   ]
@@ -28,5 +28,5 @@ config :labex, My.Logger,
 
 config :labex, My.StructuredLogs,
   roller: {:time, {5, :minute}},
-  path: URI.new!("./logs/srtuctured"),
+  path: Path.expand("./logs/srtuctured/"),
   naming_sterategy: :timestamp
