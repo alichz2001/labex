@@ -4,17 +4,16 @@ defmodule Labex do
   """
 
   defmacro __using__(opts) do
-    opts = Keyword.merge(opts, Application.get_env(:labex, __CALLER__.module, []))
+    conf = Keyword.merge(opts, Application.get_env(:labex, __CALLER__.module, []))
 
-    mode = Keyword.get(opts, :mode) || raise Labex.InvalidModeError
-    init_method = :file
+    mode = Keyword.get(conf, :mode) || raise Labex.InvalidModeError
 
     quote location: :keep do
       @behaviour :gen_event
 
-      defdelegate init(opts), to: Labex, as: unquote(init_method)
-      defdelegate handle_event(), to: Labex
+      def init(opts), do: unquote(mode).init(opts, unquote(Macro.escape(conf)))
 
+      defdelegate handle_event(event, state), to: unquote(mode)
 
     end
   end
