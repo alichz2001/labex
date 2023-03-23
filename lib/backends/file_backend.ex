@@ -1,6 +1,9 @@
 defmodule Labex.FileBackend do
+  alias Labex.FileBackend
 
   defstruct file: nil
+
+  @type valid_naming_strategies :: :timestamp
 
   def init(_opts, conf) do
     conf            = Keyword.get(conf, :conf, [])
@@ -9,9 +12,7 @@ defmodule Labex.FileBackend do
 
     file = open_file(path, naming_strategy)
 
-
-
-    {:ok, %Labex.FileBackend{file: file}}
+    {:ok, %FileBackend{file: file}}
   end
 
   def handle_event(event, %{file: file} = state) do
@@ -21,16 +22,15 @@ defmodule Labex.FileBackend do
     {:ok, state}
   end
 
-  defp format_log({_, _, {_, txt, _, _}}) do
-    txt <> "\n"
-  end
+  @spec format_log({any(), any(), {any(), String.t(), any(), any()}}) :: {:ok, String.t()} | {:ignore, atom()}
+  defp format_log({_, _, {_, txt, _, _}}), do: {:ok, txt <> "\n"}
 
 
+  @spec new_name(valid_naming_strategies, any()) :: String.t()
   defp new_name(naming_strategy, state \\ [])
-  defp new_name(:timestamp, _state) do
-    (DateTime.utc_now() |> DateTime.to_unix() |> Integer.to_string()) <> ".log"
-  end
+  defp new_name(:timestamp, _state), do: (DateTime.utc_now() |> DateTime.to_unix() |> Integer.to_string()) <> ".log"
 
+  @spec open_file(Path.t(), valid_naming_strategies()) :: IO.device()
   defp open_file(path, naming_strategy) do
     file_name = new_name(naming_strategy)
     File.mkdir_p!(path)
