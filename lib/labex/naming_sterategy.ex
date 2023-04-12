@@ -1,0 +1,3 @@
+defmodule NamingSterategy do
+  
+end
