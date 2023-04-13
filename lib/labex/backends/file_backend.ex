@@ -1,9 +1,9 @@
 defmodule Labex.FileBackend do
   alias Labex.FileBackend
 
-  defstruct file: nil
+  alias Labex.{FileBackend, NamingSterategy}
 
-  @type valid_naming_strategies :: :timestamp
+  defstruct file: nil
 
   def init(_opts, conf) do
     conf            = Keyword.get(conf, :conf, [])
@@ -43,13 +43,9 @@ defmodule Labex.FileBackend do
 
 
 
-  @spec new_name(valid_naming_strategies, any()) :: String.t()
-  defp new_name(naming_strategy, state \\ [])
-  defp new_name(:timestamp, _state), do: (DateTime.utc_now() |> DateTime.to_unix() |> Integer.to_string()) <> ".log"
-
-  @spec open_file(Path.t(), valid_naming_strategies()) :: IO.device()
+  @spec open_file(Path.t(), NamingSterategy.valid_naming_strategies()) :: IO.device()
   defp open_file(path, naming_strategy) do
-    file_name = new_name(naming_strategy)
+    file_name = NamingSterategy.new_name(naming_strategy)
     File.mkdir_p!(path)
     File.touch!(Path.join(path, file_name) <> ".lock")
     File.open!(Path.join(path, file_name), [:write])
@@ -59,5 +55,10 @@ defmodule Labex.FileBackend do
     Process.send_after(self(), :roll_log_file, translate_time(roller))
 
   defp translate_time({n, :minute}), do: n * 60
+
+
+  defmacro __using__(opts) do
+    
+  end
 
 end
