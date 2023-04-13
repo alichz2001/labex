@@ -1,0 +1,8 @@
+{
+    "follow": {
+        "inputs": {
+            "profile_id": {"type": "string"},
+            "streamer_id": {"type": "string"}
+        }
+    }
+}
