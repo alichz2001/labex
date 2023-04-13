@@ -39,10 +39,12 @@ defmodule Labex do
     quote location: :keep do
       @behaviour :gen_event
 
+      # use unquote(Keyword.get(opts, :mode))
+
       def init(opts), do: unquote(Keyword.get(opts, :mode)).init(opts, unquote(Macro.escape(opts)))
 
       defdelegate handle_event(event, state), to: unquote(Keyword.get(opts, :mode))
-      
+
     end
   end
 
